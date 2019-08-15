@@ -66,7 +66,8 @@ public class NioServerWorker extends AbstractNioSelector implements Worker{
 	/**
 	 * 加入一个新的socket客户端
 	 */
-	public void registerNewChannelTask(final SocketChannel channel){
+	@Override
+    public void registerNewChannelTask(final SocketChannel channel){
 		System.out.println("启动工作线程");
 		 final Selector selector = this.selector;
 		 registerTask(new Runnable() {
