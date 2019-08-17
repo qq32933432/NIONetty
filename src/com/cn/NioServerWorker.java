@@ -29,38 +29,37 @@ public class NioServerWorker extends AbstractNioSelector implements Worker{
         if (selectedKeys.isEmpty()) {
             return;
         }
-        Iterator<SelectionKey> ite = this.selector.selectedKeys().iterator();
-		while (ite.hasNext()) {
-			SelectionKey key = (SelectionKey) ite.next();
-			// 移除，防止重复处理
-			ite.remove();
-			
-			// 得到事件发生的Socket通道
-			SocketChannel channel = (SocketChannel) key.channel();
-			
-			// 数据总长度
-			int ret = 0;
-			boolean failure = true;
-			ByteBuffer buffer = ByteBuffer.allocate(1024);
-			//读取数据
-			try {
-				ret = channel.read(buffer);
-				failure = false;
-			} catch (Exception e) {
-				// ignore
-			}
-			//判断是否连接已断开
-			if (ret <= 0 || failure) {
-				key.cancel();
-				System.out.println("客户端断开连接");
-	        }else{
-	        	 System.out.println("收到数据:" + new String(buffer.array()));
-	        	 
-	     		//回写数据
-	     		ByteBuffer outBuffer = ByteBuffer.wrap("收到\n".getBytes());
-	     		channel.write(outBuffer);// 将消息回送给客户端
-	        }
-		}
+        for (Iterator<SelectionKey> ite = this.selector.selectedKeys().iterator();ite.hasNext();){
+            SelectionKey key = (SelectionKey) ite.next();
+            // 移除，防止重复处理
+            ite.remove();
+
+            // 得到事件发生的Socket通道
+            SocketChannel channel = (SocketChannel) key.channel();
+
+            // 数据总长度
+            int ret = 0;
+            boolean failure = true;
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            //读取数据
+            try {
+                ret = channel.read(buffer);
+                failure = false;
+            } catch (Exception e) {
+                // ignore
+            }
+            //判断是否连接已断开
+            if (ret <= 0 || failure) {
+                key.cancel();
+                System.out.println("客户端断开连接");
+            }else{
+                System.out.println("收到数据:" + new String(buffer.array()));
+
+                //回写数据
+                ByteBuffer outBuffer = ByteBuffer.wrap("收到\n".getBytes());
+                channel.write(outBuffer);// 将消息回送给客户端
+            }
+        }
 	}
 
 	/**
